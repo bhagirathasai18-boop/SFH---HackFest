@@ -1,1 +1,1 @@
-# SFH---HackFest
+# SFH-HackFest
