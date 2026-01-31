@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Civic Participation Platform</title>
+
+<!-- AI OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f4f4f4;
+}
+h2 {
+  text-align: center;
+}
+input, select, button {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px;
+  margin: 10px auto;
+  display: block;
+  font-size: 16px;
+}
+button {
+  background: green;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.scheme {
+  background: white;
+  padding: 10px;
+  margin: 10px auto;
+  max-width: 420px;
+  border-radius: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Citizen Civic Participation Portal</h2>
+
+<input id="name" placeholder="Enter Full Name">
+
+<select id="state">
+<option value="">Select State / UT</option>
+<option>Andhra Pradesh</option>
+<option>Arunachal Pradesh</option>
+<option>Assam</option>
+<option>Bihar</option>
+<option>Chhattisgarh</option>
+<option>Goa</option>
+<option>Gujarat</option>
+<option>Haryana</option>
+<option>Himachal Pradesh</option>
+<option>Jharkhand</option>
+<option>Karnataka</option>
+<option>Kerala</option>
+<option>Madhya Pradesh</option>
+<option>Maharashtra</option>
+<option>Manipur</option>
+<option>Meghalaya</option>
+<option>Mizoram</option>
+<option>Nagaland</option>
+<option>Odisha</option>
+<option>Punjab</option>
+<option>Rajasthan</option>
+<option>Sikkim</option>
+<option>Tamil Nadu</option>
+<option>Telangana</option>
+<option>Tripura</option>
+<option>Uttar Pradesh</option>
+<option>Uttarakhand</option>
+<option>West Bengal</option>
+<option>Delhi</option>
+<option>Puducherry</option>
+<option>Jammu and Kashmir</option>
+<option>Ladakh</option>
+</select>
+
+<input type="file" id="idProof" accept="image/*">
+
+<button onclick="verifyID()">Verify & Continue</button>
+
+<div id="schemes"></div>
+
+<button id="submitBtn" style="display:none" onclick="submitForm()">
+Submit & Exit
+</button>
+
+<script>
+let civicPointAdded = false;
+
+const languageMap = {
+"Andhra Pradesh":"Telugu","Telangana":"Telugu","Tamil Nadu":"Tamil",
+"Karnataka":"Kannada","Kerala":"Malayalam","Maharashtra":"Marathi",
+"Gujarat":"Gujarati","Punjab":"Punjabi","West Bengal":"Bengali",
+"Odisha":"Odia","Uttar Pradesh":"Hindi","Delhi":"Hindi"
+};
+
+const schemesData = {
+"Andhra Pradesh":[
+  ["Amma Vodi","అమ్మ ఒడి"],
+  ["YSR Aarogyasri","వైఎస్సార్ ఆరోగ్యశ్రీ"]
+],
+"Tamil Nadu":[
+  ["Kalaignar Magalir Urimai Thogai","கலைஞர் மகளிர் உரிமை தொகை"],
+  ["CM Health Insurance Scheme","முதல்வர் மருத்துவ காப்பீடு"]
+],
+"Karnataka":[
+  ["Gruha Lakshmi Scheme","ಗೃಹ ಲಕ್ಷ್ಮಿ ಯೋಜನೆ"],
+  ["Yuva Nidhi","ಯುವ ನಿಧಿ"]
+],
+"Telangana":[
+  ["Rythu Bandhu","రైతు బంధు"],
+  ["Dalit Bandhu","దళిత బంధు"]
+],
+"Default":[
+  ["Education Welfare Scheme","ప్రభుత్వ విద్య పథకం"],
+  ["Healthcare Support Scheme","ప్రభుత్వ ఆరోగ్య పథకం"]
+]
+};
+
+async function verifyID() {
+  const file = document.getElementById("idProof").files[0];
+  const state = document.getElementById("state").value;
+
+  if (!file || !state) {
+    alert("Please select state and upload ID proof");
+    return;
+  }
+
+  const result = await Tesseract.recognize(file, "eng");
+  const text = result.data.text.toLowerCase();
+
+  if (!text.includes(state.toLowerCase())) {
+    alert("❌ ID verification failed (State mismatch)");
+    return;
+  }
+
+  alert("✅ ID verified successfully");
+  loadSchemes(state);
+}
+
+function loadSchemes(state) {
+  const schemes = schemesData[state] || schemesData["Default"];
+  const lang = languageMap[state] || "Regional Language";
+
+  const div = document.getElementById("schemes");
+  div.innerHTML = `<h3>Government Schemes (${lang})</h3>`;
+
+  schemes.forEach((s, i) => {
+    div.innerHTML += `
+      <div class="scheme">
+        <b>${s[0]}</b><br>
+        <i>${s[1]}</i>
+        <p>Is this scheme good for society?</p>
+        <label>
+          <input type="radio" name="scheme${i}" onclick="addPoint()"> Yes
+        </label>
+        <label>
+          <input type="radio" name="scheme${i}" onclick="addPoint()"> No
+        </label>
+      </div>
+    `;
+  });
+
+  document.getElementById("submitBtn").style.display = "block";
+}
+
+function addPoint() {
+  if (!civicPointAdded) {
+    civicPointAdded = true;
+    console.log("Civic Points +0.5 added");
+  }
+}
+
+function submitForm() {
+  alert("Thank you for your civic participation!");
+  window.close();
+}
+</script>
+
+</body>
+</html>
