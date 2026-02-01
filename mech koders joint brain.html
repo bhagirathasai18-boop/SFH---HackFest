@@ -2,18 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Civic Participation Platform</title>
+<title>National Civic Participation Portal</title>
 
-<!-- AI OCR -->
+<!-- OCR AI -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- Google Translate (FREE – Internet-based) -->
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement(
+    { pageLanguage: 'en', autoDisplay: true },
+    'google_translate_element'
+  );
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <style>
 body {
   font-family: Arial, sans-serif;
+  background: #eef2f3;
   padding: 20px;
-  background: #f4f4f4;
 }
-h2 {
+h2, h3 {
   text-align: center;
 }
 input, select, button {
@@ -22,7 +33,6 @@ input, select, button {
   padding: 10px;
   margin: 10px auto;
   display: block;
-  font-size: 16px;
 }
 button {
   background: green;
@@ -32,22 +42,35 @@ button {
 }
 .scheme {
   background: white;
-  padding: 10px;
+  padding: 12px;
   margin: 10px auto;
   max-width: 420px;
-  border-radius: 5px;
+  border-radius: 6px;
+}
+.lang {
+  font-size: 14px;
+  margin: 4px 0;
+}
+#google_translate_element {
+  text-align: center;
+  margin-bottom: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Citizen Civic Participation Portal</h2>
+<h2>🇮🇳 Citizen Civic Participation Portal</h2>
+
+<!-- Live Internet Translation -->
+<div id="google_translate_element"></div>
 
 <input id="name" placeholder="Enter Full Name">
 
 <select id="state">
-<option value="">Select State / UT</option>
+<option value="">Select State / Union Territory</option>
+
+<!-- STATES -->
 <option>Andhra Pradesh</option>
 <option>Arunachal Pradesh</option>
 <option>Assam</option>
@@ -76,10 +99,16 @@ button {
 <option>Uttar Pradesh</option>
 <option>Uttarakhand</option>
 <option>West Bengal</option>
+
+<!-- UNION TERRITORIES -->
+<option>Andaman and Nicobar Islands</option>
+<option>Chandigarh</option>
+<option>Dadra and Nagar Haveli and Daman and Diu</option>
 <option>Delhi</option>
-<option>Puducherry</option>
 <option>Jammu and Kashmir</option>
 <option>Ladakh</option>
+<option>Lakshadweep</option>
+<option>Puducherry</option>
 </select>
 
 <input type="file" id="idProof" accept="image/*">
@@ -88,85 +117,89 @@ button {
 
 <div id="schemes"></div>
 
-<button id="submitBtn" style="display:none" onclick="submitForm()">
-Submit & Exit
-</button>
+<button id="submitBtn" style="display:none" onclick="submitForm()">Submit & Exit</button>
 
 <script>
 let civicPointAdded = false;
 
-const languageMap = {
-"Andhra Pradesh":"Telugu","Telangana":"Telugu","Tamil Nadu":"Tamil",
-"Karnataka":"Kannada","Kerala":"Malayalam","Maharashtra":"Marathi",
-"Gujarat":"Gujarati","Punjab":"Punjabi","West Bengal":"Bengali",
-"Odisha":"Odia","Uttar Pradesh":"Hindi","Delhi":"Hindi"
-};
-
+/* Schemes (publicly known, demo-safe) */
 const schemesData = {
-"Andhra Pradesh":[
-  ["Amma Vodi","అమ్మ ఒడి"],
-  ["YSR Aarogyasri","వైఎస్సార్ ఆరోగ్యశ్రీ"]
-],
-"Tamil Nadu":[
-  ["Kalaignar Magalir Urimai Thogai","கலைஞர் மகளிர் உரிமை தொகை"],
-  ["CM Health Insurance Scheme","முதல்வர் மருத்துவ காப்பீடு"]
-],
-"Karnataka":[
-  ["Gruha Lakshmi Scheme","ಗೃಹ ಲಕ್ಷ್ಮಿ ಯೋಜನೆ"],
-  ["Yuva Nidhi","ಯುವ ನಿಧಿ"]
-],
-"Telangana":[
-  ["Rythu Bandhu","రైతు బంధు"],
-  ["Dalit Bandhu","దళిత బంధు"]
-],
-"Default":[
-  ["Education Welfare Scheme","ప్రభుత్వ విద్య పథకం"],
-  ["Healthcare Support Scheme","ప్రభుత్వ ఆరోగ్య పథకం"]
-]
+"Andhra Pradesh":["Amma Vodi","YSR Aarogyasri"],
+"Arunachal Pradesh":["Dulari Kanya","CM Arogya"],
+"Assam":["Orunodoi","Atal Amrit Abhiyan"],
+"Bihar":["Kanya Utthan","Student Credit Card"],
+"Chhattisgarh":["Godhan Nyay","Rajiv Gandhi Kisan"],
+"Goa":["Griha Aadhar","Dayanand Social Security"],
+"Gujarat":["Mukhyamantri Amrutam","Kanya Kelavani"],
+"Haryana":["Beti Bachao Beti Padhao","Parivar Pehchan"],
+"Himachal Pradesh":["Himcare","Sahara Yojana"],
+"Jharkhand":["Abua Awas","Guruji Credit"],
+"Karnataka":["Gruha Lakshmi","Yuva Nidhi"],
+"Kerala":["Karunya","Life Mission"],
+"Madhya Pradesh":["Ladli Laxmi","Mukhyamantri Kisan"],
+"Maharashtra":["Ladki Bahin","Shiv Bhojan"],
+"Manipur":["CMHT","Hakshelgi Tengbang"],
+"Meghalaya":["MegCARE","Samagra Shiksha"],
+"Mizoram":["Health Care Scheme","NLUP"],
+"Nagaland":["CM Health Insurance","Housing Scheme"],
+"Odisha":["KALIA","Biju Swasthya Kalyan"],
+"Punjab":["Sarbat Sehat","Ashirwad"],
+"Rajasthan":["Chiranjeevi Health","Rajshri Yojana"],
+"Sikkim":["CM Medical Scheme","Swasthya Bima"],
+"Tamil Nadu":["Kalaignar Magalir Urimai","CM Health Insurance"],
+"Telangana":["Rythu Bandhu","Dalit Bandhu"],
+"Tripura":["CM Samajik","CM Arogya"],
+"Uttar Pradesh":["Kanya Sumangala","CM Awas"],
+"Uttarakhand":["Ghasyari","Atal Ayushman"],
+"West Bengal":["Kanyashree","Swasthya Sathi"],
+
+/* UTs */
+"Delhi":["Mohalla Clinic","CM Free Electricity"],
+"Puducherry":["Free Rice Scheme","CM Health Scheme"],
+"Jammu and Kashmir":["SEHAT","PMAY"],
+"Ladakh":["Solar Housing","Student Scholarship"],
+"Chandigarh":["Smart City","Health Mission"],
+"Andaman and Nicobar Islands":["Island Development","Health Mission"],
+"Lakshadweep":["Fishermen Welfare","Health Care"],
+"Dadra and Nagar Haveli and Daman and Diu":["Ayushman Bharat","Housing Scheme"]
 };
 
 async function verifyID() {
-  const file = document.getElementById("idProof").files[0];
+  const name = document.getElementById("name").value.trim();
   const state = document.getElementById("state").value;
+  const file = document.getElementById("idProof").files[0];
 
-  if (!file || !state) {
-    alert("Please select state and upload ID proof");
+  if (!name || !state || !file) {
+    alert("Please complete all details");
     return;
   }
 
   const result = await Tesseract.recognize(file, "eng");
-  const text = result.data.text.toLowerCase();
-
-  if (!text.includes(state.toLowerCase())) {
-    alert("❌ ID verification failed (State mismatch)");
+  if (!result.data.text.toLowerCase().includes(state.toLowerCase())) {
+    alert("ID verification failed");
     return;
   }
 
-  alert("✅ ID verified successfully");
+  alert("ID verified successfully");
   loadSchemes(state);
 }
 
 function loadSchemes(state) {
-  const schemes = schemesData[state] || schemesData["Default"];
-  const lang = languageMap[state] || "Regional Language";
-
   const div = document.getElementById("schemes");
-  div.innerHTML = `<h3>Government Schemes (${lang})</h3>`;
+  div.innerHTML = `<h3>Government Schemes</h3>`;
 
-  schemes.forEach((s, i) => {
+  schemesData[state].forEach((scheme, i) => {
     div.innerHTML += `
-      <div class="scheme">
-        <b>${s[0]}</b><br>
-        <i>${s[1]}</i>
-        <p>Is this scheme good for society?</p>
-        <label>
-          <input type="radio" name="scheme${i}" onclick="addPoint()"> Yes
-        </label>
-        <label>
-          <input type="radio" name="scheme${i}" onclick="addPoint()"> No
-        </label>
-      </div>
-    `;
+    <div class="scheme">
+      <b>${scheme}</b>
+
+      <div class="lang"><b>English:</b> Is this scheme good for society?</div>
+      <div class="lang"><b>Hindi:</b> क्या यह योजना समाज के लिए अच्छी है?</div>
+      <div class="lang"><b>Regional:</b> Is this scheme good for society?</div>
+
+      <input type="radio" name="q${i}" onclick="addPoint()"> Yes
+      <input type="radio" name="q${i}" onclick="addPoint()"> No
+    </div>`;
   });
 
   document.getElementById("submitBtn").style.display = "block";
@@ -175,13 +208,13 @@ function loadSchemes(state) {
 function addPoint() {
   if (!civicPointAdded) {
     civicPointAdded = true;
-    console.log("Civic Points +0.5 added");
+    console.log("Civic participation recorded");
   }
 }
 
 function submitForm() {
-  alert("Thank you for your civic participation!");
-  window.close();
+  alert("Thank you for your civic participation 🇮🇳");
+  document.body.innerHTML = "<h2>Submission Successful</h2>";
 }
 </script>
 
